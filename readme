@@ -1,0 +1,11 @@
+First lab: Singly and Doubly linked lists with constructor for deep copying. Tests are created using doctest framework.
+
+To test lists on Ubuntu: 1.Download .zip files; 2.Run the following commands:
+
+(*) In case you do not have unzip tools, install them using this command: sudo apt-get install unzip
+
+Create new directory for project: mkdir project_folder
+Unzip file: unzip file.zip -d project_folder 
+Note: you should not unzip two archives (with linked list and list exceptions) because exceptions are already included in lists archives). Go to files directory: cd path_to_files
+Compile the project with g++ compiler: g++ sll.cpp singly_linked_list.cpp list_exception.cpp -o test
+Or g++ dll_test.cpp doubly_linked_list.cpp list_exception.cpp -o test Run tests: ./test
