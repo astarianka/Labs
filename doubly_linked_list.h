@@ -53,7 +53,7 @@ public:
             if (current) {
                 return current->data;
             }
-            return -1;
+            throw OutOfRange();
         }
     };
     iterator begin()
