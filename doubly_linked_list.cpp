@@ -1,9 +1,6 @@
 /* Doubly linked list with constructor for deep copying */
-#include <iostream>
 #include "list_exception.h"
 #include "doubly_linked_list.h"
-
-using namespace std;
 
 DoublyLinkedList::DoublyLinkedList()
 {
@@ -24,30 +21,28 @@ DoublyLinkedList::DoublyLinkedList(const DoublyLinkedList& baseList) //copy cons
 {
     if (baseList.head == nullptr) {
         head = nullptr;
+        return;
     }
-    else {
-        head = new Node;
-        head->data = baseList.head->data;
-        head->prev = nullptr;
-        Node* currPtr = head;//currPtr - point on the current (new) list
-        Node* origPtr = baseList.head->next;//origPtr - point on the basic (original) list
+    
+    head = new Node;
+    head->data = baseList.head->data;
+    head->prev = nullptr;
+    Node* currPtr = head;//currPtr - point on the current (new) list
+    Node* origPtr = baseList.head->next;//origPtr - point on the basic (original) list
 
 
-        while (origPtr != nullptr) {
-            Node* temp = currPtr;
-            currPtr->next = new Node;
+    while (origPtr != nullptr) {
+       Node* temp = currPtr;
+       currPtr->next = new Node;
 
-            currPtr = currPtr->next;
-            currPtr->data = origPtr->data;
-
-            currPtr->prev = temp;
-            currPtr->prev->data = temp->data;
-
-            origPtr = origPtr->next;
-        }
-        currPtr->next = nullptr;
-        tail = currPtr;
+       currPtr = currPtr->next;
+       currPtr->data = origPtr->data;
+       currPtr->prev = temp;
+       currPtr->prev->data = temp->data;
+       origPtr = origPtr->next;
     }
+    currPtr->next = nullptr;
+    tail = currPtr;
     length = baseList.length;
 }
 
@@ -57,25 +52,27 @@ void DoublyLinkedList::push(int value)
     temp->data = value;
     temp->next = nullptr;
     temp->prev = nullptr;
+    length++;
     if (head == nullptr) {
         head = temp;
         tail = head;
+        return;
     }
-    else {
-        temp->prev = tail;
-        tail->next = temp;
-        tail = temp;
-    }
-    length++;
+    
+    temp->prev = tail;
+    tail->next = temp;
+    tail = temp;
 }
 void DoublyLinkedList::insert(int id, int value)
 {
     if (id < 0) {
         throw NegativeIndex();
-
     }
     if (head == nullptr && id != 0) {
         throw EmptyList();
+    }
+    if (id > length) {
+        throw OutOfRange();
     }
 
     Node* newElem = new Node;
@@ -90,25 +87,16 @@ void DoublyLinkedList::insert(int id, int value)
         head = newElem;
         return;
     }
-
+    if (id == length - 1) {
+        newElem->prev = tail;
+        tail->next = newElem;
+        newElem->next = nullptr;
+        tail = newElem;
+        return;
+    }
     for (int i = 0; i < id; i++) {
-        if (currentElem->next == nullptr) {
-            if (id == i + 1) {
-                newElem->next = nullptr;
-                newElem->prev = currentElem;
-                currentElem->next = newElem;
-                newElem->next = nullptr;
-                tail = newElem;
-            }
-            else {
-                length--;
-                throw OutOfRange();
-            }
-            return;
-        }
         currentElem = currentElem->next;
     }
-
     newElem->prev = currentElem->prev;
     newElem->next = currentElem;
     currentElem->prev->next = newElem;
@@ -118,17 +106,37 @@ string DoublyLinkedList::toString()
 {
     Node* temp = new Node;
     temp = head;
-    string str = "";
+    std::string str;
     while (temp != nullptr) {
-        str +=  to_string(temp->data) + " ";
+        str.append(std::to_string(temp->data));
+        str.append(" ");
         temp = temp->next;
     }
     return str;
 }
-void DoublyLinkedList::showList()
+
+int DoublyLinkedList::getElem(int id)
 {
-  string str = toString();
-  cout<<str<< endl;
+    if (id < 0) {
+      throw NegativeIndex();
+    }
+    if (head == nullptr) {
+        throw EmptyList();
+    }
+    if (id > length) {
+        throw OutOfRange();
+    }
+    if( id == 0){
+      return head->data;
+    }
+    if (id == length){
+      return tail->data;
+    }
+    Node* currentElem = head;
+    for (int i = 0; i < id; i++) {
+        currentElem = currentElem->next;
+    }
+    return currentElem->data;
 }
 
 int DoublyLinkedList::deleteElem(int id)
@@ -139,30 +147,30 @@ int DoublyLinkedList::deleteElem(int id)
     if (head == nullptr) {
         throw EmptyList();
     }
+    if (id > length - 1) {
+        throw OutOfRange();
+    }
     length--;
     Node* current = head;
+    if (length == 0) {
+        head = tail = nullptr;
+        return current->data;
+    }
+    if (id == length) {
+        current = tail;
+        current->prev->next = nullptr;
+        tail = current->prev;
+        return current->data;
+    }
+    if (id == 0) {
+        current->next->prev = nullptr;
+        head = current->next;
+        return current->data;
+    }
     for (int i = 0; i < id; i++) {
         current = current->next;
-        if (current == nullptr) {
-            length++;
-            throw OutOfRange();
-        }
-    }
-
-    if (current->next == nullptr && current->prev == nullptr) {
-        head = tail = nullptr; //if that is the only element in the list
-    }
-    else if (current->prev == nullptr) {
-        current->next->prev = nullptr; //if that is the first element
-        head = current->next;
-    }
-    else if (current->next == nullptr) {
-        current->prev->next = nullptr; //if that is the last element
-        tail = current->prev;
-    }
-    else {
         current->next->prev = current->prev;
         current->prev->next = current->next;
+        return current->data;
     }
-    return current->data;
 }
