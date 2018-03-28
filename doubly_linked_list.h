@@ -1,5 +1,6 @@
 #ifndef DOUBLY_LINKED_LIST_H_INCLUDED
 #define DOUBLY_LINKED_LIST_H_INCLUDED
+#include "list_exception.h"
 #include <string>
 class DoublyLinkedList {
 private:
@@ -73,7 +74,7 @@ public:
     DoublyLinkedList(const DoublyLinkedList& baseList);
     void push(int value);
     void insert(int id, int value);
-    void showList();
+    int getElem(int id);
     std::string toString();
     int deleteElem(int id);
 };
